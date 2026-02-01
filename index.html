@@ -3,138 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Be My Valentine?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>For You ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
-            background: #ffeef2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff0f3;
             font-family: 'Poppins', sans-serif;
             overflow: hidden;
         }
-
-        /* Floating Hearts Animation */
-        .heart {
-            position: fixed;
-            top: -10px;
-            transform: translateY(0);
-            animation: fall linear forwards;
-            color: #ff4d6d;
-            font-size: 20px;
+        .bg-hearts {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
             z-index: 0;
         }
-
-        @keyframes fall {
-            to {
-                transform: translateY(105vh);
-            }
-        }
-
-        .container {
+        .card {
             position: relative;
             z-index: 10;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 50px;
+            background: white;
+            padding: 40px;
             border-radius: 30px;
-            box-shadow: 0 15px 50px rgba(255, 77, 109, 0.2);
-            max-width: 450px;
-            width: 85%;
+            box-shadow: 0 20px 60px rgba(255, 77, 109, 0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transition: 0.5s;
         }
-
-        #gif-container img {
-            width: 180px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-
+        #gif-wrap { width: 100%; height: 200px; margin-bottom: 20px; }
+        #gif-wrap img { height: 100%; border-radius: 15px; }
         h1 {
             font-family: 'Dancing Script', cursive;
-            color: #d63384;
+            color: #ff4d6d;
             font-size: 2.5rem;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-
-        .btn-group {
+        .btns {
             display: flex;
             justify-content: center;
-            gap: 25px;
+            gap: 20px;
+            margin-top: 10px;
         }
-
         button {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: 600;
+            padding: 12px 35px;
             border: none;
             border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        #yesBtn { background-color: #ff4d6d; color: white; }
-        #yesBtn:hover { transform: scale(1.1); background-color: #ff758f; }
-
-        #noBtn { background-color: #f8f9fa; color: #ff4d6d; position: relative; }
-
+        #yes { background: #ff4d6d; color: white; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); }
+        #no { background: #f8f9fa; color: #ff4d6d; border: 1px solid #ff4d6d; }
         .hidden { display: none; }
+        
+        /* Heart Animation */
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="gif-container">
-            <img id="mainGif" src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW50Y2Z4NXA0YmF4bm96Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/KzM1lAfJpx3FQp3Tqc/giphy.gif" alt="Cute Panda">
-        </div>
-        
-        <h1 id="question">Will you be my Valentine? ❤️</h1>
+    <div class="bg-hearts" id="hearts-container"></div>
 
-        <div class="btn-group">
-            <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="dodge()">No</button>
+    <div class="card" id="mainCard">
+        <div id="gif-wrap">
+            <img id="mainGif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpndW16amI5am56amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/c76IJLufpNUMo/giphy.gif" alt="Cute">
+        </div>
+        <h1 id="text">Will you be my Valentine? ❤️</h1>
+        <div class="btns">
+            <button id="yes" onclick="accepted()">Yes</button>
+            <button id="no" onmouseover="moveNo()">No</button>
         </div>
     </div>
 
     <script>
-        // Floating Hearts Logic
+        // Floating Background Hearts
         function createHeart() {
+            const container = document.getElementById('hearts-container');
             const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '❤️';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
-            heart.style.opacity = Math.random();
-            document.body.appendChild(heart);
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.position = "absolute";
+            heart.style.bottom = "-50px";
+            heart.style.color = "#ff4d6d";
+            heart.style.fontSize = Math.random() * 20 + 10 + "px";
+            heart.innerHTML = "❤️";
+            heart.style.animation = `float ${Math.random() * 3 + 3}s linear forwards`;
+            container.appendChild(heart);
             setTimeout(() => heart.remove(), 5000);
         }
         setInterval(createHeart, 300);
 
-        // No Button Dodge
-        function dodge() {
-            const btn = document.getElementById('noBtn');
+        // No Button Dodge logic
+        function moveNo() {
+            const btn = document.getElementById('no');
             const x = Math.random() * (window.innerWidth - btn.offsetWidth);
             const y = Math.random() * (window.innerHeight - btn.offsetHeight);
             btn.style.position = 'fixed';
             btn.style.left = x + 'px';
             btn.style.top = y + 'px';
             
-            // Change GIF to "Sad/Shocked" when they try to click No
-            document.getElementById('mainGif').src = "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExemRmcHh0Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/OPU6wUKARA3NTTCdVm/giphy.gif";
+            // Change GIF on dodge
+            document.getElementById('mainGif').src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemRmcHh0Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/OPU6wUKARA3NTTCdVm/giphy.gif";
         }
 
-        // Yes Button Celebration
-        function celebrate() {
-            document.getElementById('mainGif').src = "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXA0YmF4bm96Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l41lH4ADRtAYnGsLe/giphy.gif";
-            document.getElementById('question').innerHTML = "I Love You! ❤️ See you on the 14th! 🥰";
-            document.querySelector('.btn-group').classList.add('hidden');
-            
-            // Speed up hearts on Yes
-            setInterval(createHeart, 50);
+        // Yes Button click logic
+        function accepted() {
+            document.getElementById('mainGif').src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXA0YmF4bm96Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6Z3R6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l41lH4ADRtAYnGsLe/giphy.gif";
+            document.getElementById('text').innerHTML = "I Love You! 🥰 See you soon!";
+            document.querySelector('.btns').classList.add('hidden');
+            setInterval(createHeart, 50); // Celebrate with lots of hearts
         }
     </script>
 </body>
